@@ -1,0 +1,40 @@
+[project]
+name = "genre-and-authorship-bench"
+version = "0.1.0"
+description = "Benchmark of stylometric, neural and LLM-based methods for web genre identification and authorship attribution."
+readme = "README.md"
+authors = [{ name = "Athanasios Bonis" }]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "scikit-learn>=1.5",
+    "scipy>=1.13",
+    "pyyaml>=6.0",
+    "fasttext-wheel>=0.9.2",
+]
+
+[project.scripts]
+gabench = "gabench.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.17,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "gabench"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

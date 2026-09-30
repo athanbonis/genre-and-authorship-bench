@@ -1,0 +1,13 @@
+# Classical baselines: CPU only, no pretrained models.
+experiment: baselines
+
+datasets:
+  7genre: {type: cv, folds: 10, seeds: [0, 1, 2]}
+  ki04: {type: cv, folds: 10, seeds: [0, 1, 2]}
+  pan18: {type: official}
+
+models:
+  pan18-baseline: {n: 3, min_freq: 5, c: 1.0}
+  char-ngram-svm: {ngram_min: 1, ngram_max: 4, min_df: 2, max_features: 200000, c: 1.0}
+  # Word uni+bigrams only: character subwords were ~4.5x slower in a timing check.
+  fasttext: {epoch: 25, lr: 0.5, dim: 100, word_ngrams: 2, minn: 0, maxn: 0, min_count: 1}
