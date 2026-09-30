@@ -1,0 +1,61 @@
+{
+  "config": {
+    "experiment": "baselines",
+    "datasets": {
+      "7genre": {
+        "type": "cv",
+        "folds": 10,
+        "seeds": [
+          0,
+          1,
+          2
+        ]
+      },
+      "ki04": {
+        "type": "cv",
+        "folds": 10,
+        "seeds": [
+          0,
+          1,
+          2
+        ]
+      },
+      "pan18": {
+        "type": "official"
+      }
+    },
+    "models": {
+      "pan18-baseline": {
+        "n": 3,
+        "min_freq": 5,
+        "c": 1.0
+      },
+      "char-ngram-svm": {
+        "ngram_min": 1,
+        "ngram_max": 4,
+        "min_df": 2,
+        "max_features": 200000,
+        "c": 1.0
+      },
+      "fasttext": {
+        "epoch": 25,
+        "lr": 0.5,
+        "dim": 100,
+        "word_ngrams": 2,
+        "minn": 0,
+        "maxn": 0,
+        "min_count": 1
+      }
+    }
+  },
+  "git_commit": "6511b54640cbebd2c3521bbe962f7221bf52a3af",
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v50-x86_64-with-glibc2.39",
+  "packages": {
+    "genre-and-authorship-bench": "0.1.0",
+    "numpy": "2.4.6",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.17.1",
+    "fasttext-wheel": "0.9.2"
+  }
+}
