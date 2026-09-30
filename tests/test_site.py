@@ -24,3 +24,15 @@ def test_referenced_assets_exist():
     html = (SITE / "index.html").read_text(encoding="utf-8")
     for ref in re.findall(r'(?:href|src)="([^"#:]+)"', html):
         assert (SITE / ref).is_file(), ref
+
+
+def test_link_preview_image_matches_meta_tags():
+    """The Open Graph image exists locally, is 1200x630, and the tags point to it."""
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    image = re.search(r'property="og:image" content="([^"]+)"', html).group(1)
+    canonical = re.search(r'rel="canonical" href="([^"]+)"', html).group(1)
+    assert image.startswith(canonical)
+    png = (SITE / image.removeprefix(canonical)).read_bytes()
+    width, height = int.from_bytes(png[16:20], "big"), int.from_bytes(png[20:24], "big")
+    assert (width, height) == (1200, 630)
+    assert 'content="1200"' in html and 'content="630"' in html

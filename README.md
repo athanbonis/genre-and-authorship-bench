@@ -111,7 +111,8 @@ tests/              unit and end-to-end tests on synthetic data
 ## Explainer site
 
 [`site/`](site/) is a small static website that explains the project in plain language, with
-an interactive "writing fingerprint" demo and the latest results. It has no build step:
+an interactive "writing fingerprint" demo and the latest results. It is live at
+https://whowrotethis.athanbonis.com. It has no build step:
 preview it with `python -m http.server --directory site` and open http://localhost:8000.
 
 It is deployed to Azure Static Web Apps by
