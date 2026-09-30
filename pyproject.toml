@@ -3,6 +3,8 @@ name = "genre-and-authorship-bench"
 version = "0.1.0"
 description = "Benchmark of stylometric, neural and LLM-based methods for web genre identification and authorship attribution."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "LICENSE-docs"]
 authors = [{ name = "Athanasios Bonis" }]
 requires-python = ">=3.11"
 dependencies = [

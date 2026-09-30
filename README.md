@@ -1,5 +1,11 @@
 # genre-and-authorship-bench
 
+[![CI](https://github.com/athanbonis/genre-and-authorship-bench/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/athanbonis/genre-and-authorship-bench/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab)](pyproject.toml)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-green)](LICENSE)
+[![Docs & results: CC BY 4.0](https://img.shields.io/badge/docs%20%26%20results-CC%20BY%204.0-lightgrey)](LICENSE-docs)
+[![Explainer site](https://img.shields.io/badge/explainer-whowrotethis.athanbonis.com-2a78d6)](https://whowrotethis.athanbonis.com)
+
 A reproducible benchmark of text classification methods, from character n-gram stylometry to
 fine-tuned encoders and LLMs, on two tasks where *how* a text is written matters as much as
 *what* it says:
@@ -12,7 +18,9 @@ The questions, protocol and roadmap are in [`docs/research-plan.md`](docs/resear
 
 ## Status
 
-Early development. Classical CPU baselines run on all corpora. Pretrained models are next.
+**Work in progress.** Classical CPU baselines run on all corpora. Pretrained models and LLMs
+are next. Results, code and docs will change as the project develops, so treat the current
+numbers as a first baseline, not final findings.
 
 ## Results
 
@@ -141,3 +149,10 @@ This project is a from-scratch rebuild of the questions studied in:
 
 None of the thesis code or results are reused. See the research plan for why its numbers are
 treated as unreliable.
+
+## Licence
+
+- **Code:** [MIT](LICENSE).
+- **Documentation, results and site content:** [CC BY 4.0](LICENSE-docs).
+- **Datasets:** not included; they keep their creators' terms (see
+  [`docs/datasets.md`](docs/datasets.md)).
