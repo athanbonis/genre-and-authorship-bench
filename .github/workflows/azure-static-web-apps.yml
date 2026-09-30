@@ -1,0 +1,51 @@
+name: Deploy site to Azure Static Web Apps
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", ".github/workflows/azure-static-web-apps.yml"]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+    paths: ["site/**", ".github/workflows/azure-static-web-apps.yml"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  # Deployment is skipped (not failed) until the repository secret is set.
+  HAS_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN != '' }}
+
+jobs:
+  deploy:
+    if: github.event_name == 'push' || github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Report missing token
+        if: env.HAS_TOKEN != 'true'
+        run: echo "::notice::AZURE_STATIC_WEB_APPS_API_TOKEN is not set; skipping deployment."
+      - name: Deploy
+        if: env.HAS_TOKEN == 'true'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: site
+          output_location: ""
+          skip_app_build: true
+          skip_api_build: true
+
+  close-preview:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove the pull request's preview environment
+        if: env.HAS_TOKEN == 'true'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: close
+          app_location: site

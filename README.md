@@ -98,6 +98,7 @@ Provenance and terms of use: [`docs/datasets.md`](docs/datasets.md).
 configs/            experiment configs
 docs/               research plan and dataset notes
 results/            committed results (runs, summaries, environment)
+site/               static explainer website
 src/gabench/
   data/             corpus loaders, evaluation protocols, fetching
   models/           classifiers behind a common fit/predict interface
@@ -106,6 +107,18 @@ src/gabench/
   cli.py            the `gabench` command
 tests/              unit and end-to-end tests on synthetic data
 ```
+
+## Explainer site
+
+[`site/`](site/) is a small static website that explains the project in plain language, with
+an interactive "writing fingerprint" demo and the latest results. It has no build step:
+preview it with `python -m http.server --directory site` and open http://localhost:8000.
+
+It is deployed to Azure Static Web Apps by
+[`.github/workflows/azure-static-web-apps.yml`](.github/workflows/azure-static-web-apps.yml) on
+every push to `main` that changes `site/`. Pull requests get a temporary preview URL.
+Deployment needs the repository secret `AZURE_STATIC_WEB_APPS_API_TOKEN`. Without it the
+workflow skips the deploy step.
 
 ## Development
 
