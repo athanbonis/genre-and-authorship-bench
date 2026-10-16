@@ -118,8 +118,10 @@ tests/              unit and end-to-end tests on synthetic data
 
 ## Explainer site
 
-[`site/`](site/) is a small static website that explains the project in plain language, with
-an interactive "writing fingerprint" demo and the latest results. It is live at
+[`site/`](site/) is a small static website that presents the project as a short research report,
+with an interactive "writing fingerprint" demo, the latest results, and a Play mode where you
+guess authors and page genres against a character n-gram model. It uses the same typography and
+colours as [athanbonis.com](https://athanbonis.com). It is live at
 https://whowrotethis.athanbonis.com. It has no build step:
 preview it with `python -m http.server --directory site` and open http://localhost:8000.
 

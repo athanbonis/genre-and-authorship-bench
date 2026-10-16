@@ -4,10 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Who Wrote This?</title>
-  <meta name="description" content="A plain-language guide to how computers recognise the kind of a web page and the author of a text, and how we test them fairly.">
+  <meta name="description" content="A research report on telling who wrote a text and what kind of web page it is, from character n-grams to language models, tested without data leakage. Includes a game: you vs the letter counter.">
   <link rel="canonical" href="https://whowrotethis.athanbonis.com/">
-  <meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#fbfaf7">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Who Wrote This?">
   <meta property="og:url" content="https://whowrotethis.athanbonis.com/">
@@ -22,6 +21,9 @@
   <meta name="twitter:description" content="A plain-language guide to authorship and web genre classification, from letter counting to AI.">
   <meta name="twitter:image" content="https://whowrotethis.athanbonis.com/og-image.png">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400;1,8..60,500&display=swap">
   <link rel="stylesheet" href="styles.css">
   <script>
     try {
@@ -31,311 +33,289 @@
   </script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#top">Who Wrote This?</a>
-    <nav aria-label="Sections">
-      <a href="#puzzles">The puzzles</a>
-      <a href="#style">Style</a>
-      <a href="#toolbox">Toolbox</a>
-      <a href="#testing">Fair testing</a>
-      <a href="#results">Results</a>
-    </nav>
-    <button class="theme-toggle" type="button" aria-label="Switch colour theme">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
-    </button>
+  <header class="bar">
+    <div class="bar-inner">
+      <span class="brand">
+        <a class="home" href="https://athanbonis.com">Athanasios Bonis</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <a class="here" href="#top">Who Wrote This?</a>
+      </span>
+      <span class="bar-spacer"></span>
+      <button class="play-btn" type="button" data-play>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>
+        Play
+      </button>
+      <button class="icon-btn theme-toggle" type="button" aria-label="Switch colour theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
   </header>
 
-  <main id="top">
-    <section class="hero">
-      <p class="eyebrow">A research project, explained simply</p>
-      <h1>Can a computer tell <em>who</em> wrote something, or <em>what kind</em> of page it is?</h1>
-      <p class="lead">
-        People leave habits in everything they write: favourite words, punctuation, how they
-        start sentences. Web pages have habits too: a shop looks different from a blog.
-        This project measures how well computers pick up those habits, from simple letter
-        counting to today's AI models, and checks the answers honestly.
-      </p>
-      <a class="button" href="#puzzles">Start reading</a>
-    </section>
-
-    <section id="puzzles" class="section">
-      <h2>Two puzzles</h2>
-      <p class="section-lead">Both are sorting problems: give the computer a text, and it has to put it in the right box.</p>
-      <div class="cards">
-        <article class="card">
-          <div class="card-icon" aria-hidden="true">🗂️</div>
-          <h3>What kind of page is this?</h3>
-          <p>
-            Called <strong>genre identification</strong>. Is a web page a blog, an online shop,
-            an FAQ, a home page, a discussion forum? Search engines and AI companies use this
-            to organise and filter the web.
-          </p>
-          <ul class="tags" aria-label="Example genres">
-            <li>Blog</li><li>Shop</li><li>FAQ</li><li>Front page</li><li>Forum</li><li>Download page</li>
-          </ul>
-        </article>
-        <article class="card">
-          <div class="card-icon" aria-hidden="true">🖋️</div>
-          <h3>Who wrote this text?</h3>
-          <p>
-            Called <strong>authorship attribution</strong>. We have a few texts by each
-            suspect and one text of unknown origin. Which suspect wrote it? It helps in
-            forensics, plagiarism checks and literary history.
-          </p>
-          <p class="note">
-            The hard version: the known texts are about one topic (say, Harry Potter fan
-            fiction) and the mystery text is about another (Star Wars). The computer must
-            follow the <em>writer</em>, not the <em>topic</em>.
-          </p>
-        </article>
-      </div>
-    </section>
-
-    <section id="style" class="section">
-      <h2>How a computer "sees" style</h2>
-      <p class="section-lead">
-        One of the oldest and still strongest tricks: chop the text into tiny overlapping
-        pieces of three characters and count them. Those counts form a
-        <strong>fingerprint</strong>. Similar fingerprints suggest the same writer.
-      </p>
-
-      <div class="demo">
-        <div class="demo-inputs">
-          <label class="field">
-            <span>Text A</span>
-            <textarea id="text-a" rows="5" spellcheck="false">Well, honestly, I never thought it would come to this. Honestly! We walked, and walked, and then, well, we simply sat down and laughed.</textarea>
-          </label>
-          <label class="field">
-            <span>Text B</span>
-            <textarea id="text-b" rows="5" spellcheck="false">Well, I suppose it was bound to happen, honestly. We talked, and talked, and then, well, we just gave up and laughed about it.</textarea>
-          </label>
-        </div>
-        <div class="demo-controls">
-          <button type="button" class="chip-button" data-preset="same">Same writer</button>
-          <button type="button" class="chip-button" data-preset="different">Different writers</button>
-        </div>
-
-        <div class="demo-output">
-          <div class="meter-block">
-            <div class="meter-label">
-              <span>Fingerprint similarity</span>
-              <strong id="similarity-value">–</strong>
-            </div>
-            <div class="meter" role="meter" aria-labelledby="similarity-caption" aria-valuemin="0" aria-valuemax="100" id="similarity-meter">
-              <div class="meter-fill" id="similarity-fill"></div>
-            </div>
-            <p class="small muted" id="similarity-caption">How much the two fingerprints overlap (cosine similarity of the counts).</p>
-          </div>
-          <div class="grams">
-            <div>
-              <h4>Text A: most common pieces</h4>
-              <ul class="gram-list" id="grams-a"></ul>
-            </div>
-            <div>
-              <h4>Text B: most common pieces</h4>
-              <ul class="gram-list" id="grams-b"></ul>
-            </div>
-          </div>
-        </div>
-        <p class="small muted">A space is shown as <code>·</code>. Try editing either text: the fingerprint updates as you type.</p>
-      </div>
-    </section>
-
-    <section id="toolbox" class="section">
-      <h2>The toolbox, from old to new</h2>
-      <p class="section-lead">The project compares four families of methods on exactly the same tests.</p>
-      <ol class="ladder">
-        <li class="rung">
-          <div class="rung-head">
-            <h3>1. Counting letter patterns</h3>
-            <span class="badge badge-done">Tested</span>
-          </div>
-          <p>
-            The fingerprint above, fed to a classic sorting algorithm (a <em>support vector
-            machine</em>). Fast, cheap, runs on any laptop, and surprisingly hard to beat.
-          </p>
-        </li>
-        <li class="rung">
-          <div class="rung-head">
-            <h3>2. Small learned models</h3>
-            <span class="badge badge-done">Tested</span>
-          </div>
-          <p>
-            Tools like <em>fastText</em> learn which words and word pairs point to each
-            box. They learn only from the examples we give them, nothing else.
-          </p>
-        </li>
-        <li class="rung">
-          <div class="rung-head">
-            <h3>3. Pre-trained language models</h3>
-            <span class="badge badge-next">Next</span>
-          </div>
-          <p>
-            Models that first "read" a huge part of the internet, then get a short extra
-            lesson on our task. This was the idea behind the original 2019 study.
-          </p>
-        </li>
-        <li class="rung">
-          <div class="rung-head">
-            <h3>4. Large language models (chatbots)</h3>
-            <span class="badge badge-next">Planned</span>
-          </div>
-          <p>
-            Simply ask an AI model: "Here are texts by five writers. Who wrote this one?"
-            No training at all. Is that enough, and what does it cost?
-          </p>
-        </li>
+  <div class="report" id="top">
+    <nav class="toc" aria-label="Contents">
+      <p>Contents</p>
+      <ol>
+        <li><a href="#tasks"><span>1</span>The two tasks</a></li>
+        <li><a href="#style"><span>2</span>Measuring style</a></li>
+        <li><a href="#methods"><span>3</span>Methods</a></li>
+        <li><a href="#protocol"><span>4</span>Evaluation protocol</a></li>
+        <li><a href="#results"><span>5</span>Results</a></li>
+        <li><a href="#background"><span>6</span>Background</a></li>
+        <li><a href="#terms"><span>7</span>Terms</a></li>
+        <li><a href="#refs"><span>8</span>Sources</a></li>
       </ol>
-    </section>
+    </nav>
 
-    <section id="testing" class="section">
-      <h2>Fair testing: no peeking at the exam</h2>
-      <p class="section-lead">
-        A model is like a student. It studies from examples (<strong>training</strong>) and
-        then sits an exam on examples it has never seen (<strong>testing</strong>). If it
-        glimpsed the exam while studying, its score means nothing. That mistake is called
-        <strong>data leakage</strong>.
-      </p>
-
-      <div class="folds">
-        <h3>Taking turns: 10-fold cross-validation</h3>
-        <p>
-          We split the pages into 10 groups. In each round, one group is the exam and the
-          other nine are study material. After 10 rounds every page has been in the exam
-          exactly once, and we average the scores.
-        </p>
-        <div class="fold-row" id="fold-row" aria-hidden="true"></div>
-        <div class="fold-controls">
-          <button type="button" class="chip-button" id="fold-next">Next round</button>
-          <span class="small" id="fold-caption" aria-live="polite"></span>
-        </div>
-        <div class="legend-inline" aria-hidden="true">
-          <span><i class="swatch swatch-train"></i>Study material</span>
-          <span><i class="swatch swatch-test"></i>Exam</span>
+    <main class="col">
+      <div class="titleblock">
+        <p class="kicker">Genre and authorship classification · Research, in progress</p>
+        <h1>Can a computer tell <em>who</em> wrote a text, or <em>what kind</em> of page it is?</h1>
+        <div class="byline">
+          <span><b><a href="https://athanbonis.com">Athanasios Bonis</a></b></span>
+          <span>Rebuild of a 2019 University of the Aegean thesis</span>
+          <span>Status: classical baselines complete, pretrained models next</span>
         </div>
       </div>
 
-      <div class="callout">
-        <h3>Why this matters here</h3>
+      <section class="abstract" aria-labelledby="abs">
+        <h2 id="abs">Summary</h2>
         <p>
-          The original 2019 study reported a model scoring <strong>higher on its exam than on
-          its practice tests</strong>. That's a warning sign that it may have seen the exam
-          text while studying. This rebuild enforces a strict rule: every model learns from
-          study material only, and every step is recorded so anyone can re-run it.
+          This project compares methods for two text-sorting tasks: identifying the genre of a web page
+          and attributing a text to one of several candidate authors when the topic changes. Every method
+          runs under one protocol in which nothing is learned from test data. The first round covers the
+          classical methods. Character n-grams with a linear SVM reach <b class="num">97.2%</b> accuracy on
+          the 7-genre corpus, but only <b class="num">58.2</b> macro-F1 on cross-domain authorship (PAN-18),
+          where the best score falls to <b class="num">46.5</b> for Polish. The next rounds test whether
+          pretrained models and LLMs close that gap.
         </p>
-      </div>
-    </section>
+      </section>
 
-    <section id="results" class="section">
-      <h2>Results so far</h2>
-      <p class="section-lead">
-        First round: the classic methods (families 1 and 2). Higher is better. Each score is
-        an average over many exam rounds.
-      </p>
+      <aside class="invite" aria-labelledby="invite-h">
+        <div>
+          <h2 id="invite-h">Try the task before reading about it</h2>
+          <p>Eight short rounds. Guess the author or the page type, then see what a letter-counting model guessed for the same text.</p>
+        </div>
+        <button class="play-btn" type="button" data-play>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>
+          Play: you vs the model
+        </button>
+      </aside>
 
-      <figure class="viz-root" aria-labelledby="chart-title">
-        <figcaption>
-          <h3 id="chart-title">Score by method and dataset (%)</h3>
-          <p class="small muted">
-            Web genres: share of pages sorted correctly (accuracy). Authorship: macro-F1,
-            the official score of the PAN-18 competition, which treats every suspect equally.
+      <!-- 1 -->
+      <section class="sec" id="tasks" aria-labelledby="h-tasks">
+        <div class="sec-head"><span class="sec-num">§1</span><h2 id="h-tasks">The two tasks</h2></div>
+        <p>Both are closed-set classification. The model receives a text and must assign it one label from a fixed list.</p>
+        <div class="tasks">
+          <article class="task">
+            <span class="term">Web genre identification</span>
+            <h3>What kind of page is this?</h3>
+            <p>Blog, online shop, FAQ, news front page, personal home page, search results. Search engines and dataset builders use genre to filter and organise the web.</p>
+          </article>
+          <article class="task">
+            <span class="term">Cross-domain authorship attribution</span>
+            <h3>Which candidate wrote this?</h3>
+            <p>Each candidate has seven known texts on one topic. The unknown texts are on a different topic, so the model has to follow the writer and ignore the subject.</p>
+          </article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption><b>Table 1.</b> Corpora and evaluation protocol.</caption>
+            <thead><tr><th>Corpus</th><th>Task</th><th class="n">Texts</th><th>Labels</th><th>Protocol</th></tr></thead>
+            <tbody>
+              <tr><th>7-genre (Santini)</th><td>Web genre</td><td class="n">1,400</td><td>7 genres, 200 each</td><td>Stratified 10-fold CV × 3 seeds</td></tr>
+              <tr><th>KI-04 (Meyer zu Eissen &amp; Stein)</th><td>Web genre</td><td class="n">1,205</td><td>8 genres, 126–205 each</td><td>Stratified 10-fold CV × 3 seeds</td></tr>
+              <tr><th>PAN-18 (dev)</th><td>Authorship</td><td class="n">20 problems</td><td>5–20 candidates, 5 languages</td><td>Official known / unknown split</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="sec" id="style" aria-labelledby="h-style">
+        <div class="sec-head"><span class="sec-num">§2</span><h2 id="h-style">Measuring style with character n-grams</h2></div>
+        <div class="prose">
+          <p>
+            The oldest strong baseline cuts a text into overlapping slices of three characters and counts
+            them. <code>"the cat"</code> becomes <code>the</code>, <code>he·</code>, <code>e·c</code>,
+            <code>·ca</code>, <code>cat</code>. The counts form a profile that captures function words,
+            punctuation habits, spelling and word endings, which are less tied to topic than vocabulary is.
           </p>
-        </figcaption>
-        <ul class="legend" id="chart-legend" aria-label="Legend"></ul>
-        <div class="panels" id="chart-panels"></div>
-        <div class="tooltip" id="chart-tooltip" role="status" hidden></div>
-        <details class="table-view">
-          <summary>Show as a table</summary>
-          <div class="table-scroll">
-            <table id="chart-table"></table>
+        </div>
+        <figure>
+          <div class="fig-box">
+            <div class="fp-inputs">
+              <label for="text-a">Text A
+                <textarea id="text-a" rows="4" spellcheck="false">Well, honestly, I never thought it would come to this. Honestly! We walked, and walked, and then, well, we simply sat down and laughed.</textarea>
+              </label>
+              <label for="text-b">Text B
+                <textarea id="text-b" rows="4" spellcheck="false">Well, I suppose it was bound to happen, honestly. We talked, and talked, and then, well, we just gave up and laughed about it.</textarea>
+              </label>
+            </div>
+            <div class="fp-row">
+              <button type="button" class="chip" data-preset="same">Load: same writer</button>
+              <button type="button" class="chip" data-preset="different">Load: different writers</button>
+              <div class="fp-score"><strong id="sim-value">–</strong><span>profile similarity (cosine)</span></div>
+            </div>
+            <div class="meter" role="meter" aria-label="Profile similarity" aria-valuemin="0" aria-valuemax="100" id="sim-meter"><i id="sim-fill"></i></div>
+            <div class="grams">
+              <div><h4>Text A · most frequent 3-grams</h4><ul class="gram-list" id="grams-a"></ul></div>
+              <div><h4>Text B · most frequent 3-grams</h4><ul class="gram-list" id="grams-b"></ul></div>
+            </div>
           </div>
-        </details>
-      </figure>
+          <figcaption><b>Figure 1.</b> Character 3-gram profiles, computed in your browser. Highlighted slices appear in both texts. <code>·</code> marks a space. Edit either text to update the score.</figcaption>
+        </figure>
+      </section>
 
-      <div class="takeaways">
-        <div class="takeaway">
-          <p class="big">97%</p>
-          <p>Counting letter patterns sorts web pages into 7 genres almost perfectly, above the earlier results the 2019 study compared against.</p>
+      <!-- 3 -->
+      <section class="sec" id="methods" aria-labelledby="h-methods">
+        <div class="sec-head"><span class="sec-num">§3</span><h2 id="h-methods">Methods</h2></div>
+        <p>Methods are grouped by how much they know before they see our data. All tiers run on the same splits and the same scorer.</p>
+        <div class="table-wrap">
+          <table>
+            <caption><b>Table 2.</b> Methods roadmap.</caption>
+            <thead><tr><th>Tier</th><th>Methods</th><th>Compute</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><th>0. Classical</th><td>Official PAN-18 baseline (char 3-grams + SVM); TF-IDF char 1–4-grams + SVM; fastText</td><td>CPU</td><td><span class="pill pill-done">Done</span></td></tr>
+              <tr><th>1. Frozen embeddings</th><td>Multilingual sentence embeddings + linear classifier</td><td>CPU / free GPU</td><td><span class="pill pill-next">Next</span></td></tr>
+              <tr><th>2. Fine-tuned encoders</th><td>ModernBERT (en); XLM-R, mDeBERTa (multilingual); long-document handling</td><td>Free GPU</td><td><span class="pill pill-plan">Planned</span></td></tr>
+              <tr><th>3. LLMs</th><td>Zero- and few-shot prompting; known texts as in-context examples for PAN</td><td>API</td><td><span class="pill pill-plan">Planned</span></td></tr>
+              <tr><th>4. Historical</th><td>ULMFiT re-implemented under the leakage-free protocol</td><td>Free GPU</td><td><span class="pill pill-plan">Optional</span></td></tr>
+            </tbody>
+          </table>
         </div>
-        <div class="takeaway">
-          <p class="big">58</p>
-          <p>Authorship across topics is much harder. Even the best classic methods score around 58 out of 100, and worst in Polish.</p>
+      </section>
+
+      <!-- 4 -->
+      <section class="sec" id="protocol" aria-labelledby="h-protocol">
+        <div class="sec-head"><span class="sec-num">§4</span><h2 id="h-protocol">Evaluation protocol</h2></div>
+        <p>
+          A score is only meaningful if the model never saw the test texts while learning. When it does,
+          the error is called <b>data leakage</b>, and it inflates results. These rules apply to every model
+          and are enforced in code where possible.
+        </p>
+        <ol class="rules">
+          <li><b>Train-only learning</b><span class="pill pill-done">Enforced</span><p>Vocabularies, scalers, embeddings, language-model adaptation and prompt examples come from the training part of each split only.</p></li>
+          <li><b>No tuning on test data</b><span class="pill pill-done">Enforced</span><p>Hyperparameters live in versioned configs. Any tuning uses validation data carved from the training split.</p></li>
+          <li><b>Official metrics</b><span class="pill pill-done">Enforced</span><p>Accuracy and macro-F1 for every split. PAN-18 uses macro-F1 over candidates, averaged over problems, also per language.</p></li>
+          <li><b>Variance</b><span class="pill pill-done">Enforced</span><p>Mean ± standard deviation over splits, with three CV seeds on the genre corpora.</p></li>
+          <li><b>Significance</b><span class="pill pill-plan">To do</span><p>Paired Wilcoxon signed-rank tests over identical splits, corrected for multiple comparisons.</p></li>
+          <li><b>Cost</b><span class="pill pill-done">Enforced</span><p>Fit and predict time per split, hardware, and API cost where relevant.</p></li>
+          <li><b>Provenance</b><span class="pill pill-done">Enforced</span><p>Every run records its config, git commit and package versions.</p></li>
+        </ol>
+        <figure>
+          <div class="fig-box">
+            <svg class="cv-svg" id="cv-svg" viewBox="0 0 520 178" role="img" aria-label="Ten rounds of cross-validation. In each round a different tenth of the data is the test set."></svg>
+            <div class="legend-inline cv-legend">
+              <span><i class="sw-train"></i>Training (9 folds)</span>
+              <span><i class="sw-test"></i>Test (1 fold)</span>
+            </div>
+          </div>
+          <figcaption><b>Figure 2.</b> Stratified 10-fold cross-validation. Each row is one round. Every page is tested exactly once per seed, and the reported score is the mean over 10 rounds × 3 seeds = 30 splits.</figcaption>
+        </figure>
+      </section>
+
+      <!-- 5 -->
+      <section class="sec" id="results" aria-labelledby="h-results">
+        <div class="sec-head"><span class="sec-num">§5</span><h2 id="h-results">Results: classical baselines</h2></div>
+        <figure>
+          <div class="fig-box" id="viz">
+            <ul class="legend" id="legend"></ul>
+            <div class="panels" id="panels"></div>
+            <div class="tooltip" id="tooltip" role="status" hidden></div>
+          </div>
+          <figcaption><b>Figure 3.</b> Mean score with ±1 standard deviation over splits (30 for the genre corpora, 20 problems for PAN-18). Genre panels show accuracy. The authorship panel shows macro-F1, the official PAN-18 measure, which weights every candidate equally.</figcaption>
+          <details class="tv">
+            <summary>Show Figure 3 as a table</summary>
+            <div class="table-wrap">
+              <table id="results-table"></table>
+            </div>
+          </details>
+        </figure>
+
+        <div class="findings">
+          <div class="finding"><p class="big">97.2<small>%</small></p><p>Character n-grams + SVM sort 7-genre pages almost perfectly. KI-04 is harder, at 85.0%.</p></div>
+          <div class="finding"><p class="big">58.4<small>F1</small></p><p>Cross-topic authorship stays hard. The two n-gram methods tie, and both are weakest in Polish.</p></div>
+          <div class="finding"><p class="big">13.4<small>F1</small></p><p>fastText fails on authorship. Seven texts per candidate are too few for it to learn word-level signals.</p></div>
         </div>
-        <div class="takeaway">
-          <p class="big">7</p>
-          <p>Texts per suspect. With so few, fastText learns almost nothing on authorship. That's where pre-trained models could help.</p>
+
+        <div class="table-wrap">
+          <table>
+            <caption><b>Table 3.</b> PAN-18 macro-F1 by language, mean over the four problems per language. Best per language in bold.</caption>
+            <thead><tr><th>Method</th><th class="n">EN</th><th class="n">FR</th><th class="n">IT</th><th class="n">PL</th><th class="n">ES</th></tr></thead>
+            <tbody>
+              <tr><th>PAN-18 baseline</th><td class="n">69.7</td><td class="n best">58.5</td><td class="n best">60.5</td><td class="n">41.9</td><td class="n best">61.5</td></tr>
+              <tr><th>Char 1–4-grams + SVM</th><td class="n best">74.1</td><td class="n">56.6</td><td class="n">57.0</td><td class="n best">46.5</td><td class="n">56.8</td></tr>
+              <tr><th>fastText</th><td class="n">16.4</td><td class="n">13.1</td><td class="n">6.2</td><td class="n">23.4</td><td class="n">7.6</td></tr>
+            </tbody>
+          </table>
         </div>
+
+        <div class="callout">
+          <b>Sanity check</b>
+          <p>Our copy of the official PAN-18 baseline reproduces all 1,315 answers of the published baseline, which confirms the data loading and scoring.</p>
+        </div>
+      </section>
+
+      <!-- 6 -->
+      <section class="sec" id="background" aria-labelledby="h-bg">
+        <div class="sec-head"><span class="sec-num">§6</span><h2 id="h-bg">Background</h2></div>
+        <ol class="timeline">
+          <li><span class="when">2019</span><div><h3>The original thesis</h3><p>ULMFiT was applied to both tasks. It reported 99.1% on 7-genre and 92.6% on KI-04, and losses against n-gram baselines on authorship.</p></div></li>
+          <li><span class="when">2026</span><div><h3>Review</h3><p>Test accuracy exceeded validation accuracy on both genre corpora, which suggests the language model was adapted on text that included test pages. PAN-18 numbers were inconsistent, an English-only model was applied to four other languages, and most code was missing.</p></div></li>
+          <li><span class="when">Now</span><div><h3>Rebuild</h3><p>The thesis is motivation only. Every number on this page comes from code in the repository, re-run under the protocol in §4.</p></div></li>
+          <li><span class="when">Next</span><div><h3>Pretrained models and LLMs</h3><p>Test tiers 1–3 under the same protocol and answer the main question: has pretraining overtaken character n-grams on cross-topic authorship?</p></div></li>
+        </ol>
+      </section>
+
+      <!-- 7 -->
+      <section class="sec" id="terms" aria-labelledby="h-terms">
+        <div class="sec-head"><span class="sec-num">§7</span><h2 id="h-terms">Terms</h2></div>
+        <dl class="glossary">
+          <div><dt>Character n-gram</dt><dd>A slice of n consecutive characters. "the" and "he·" are 3-grams.</dd></div>
+          <div><dt>Data leakage</dt><dd>Test material reaching the training step, which inflates scores.</dd></div>
+          <div><dt>Cross-validation</dt><dd>Rotating which part of the data is the test set, then averaging.</dd></div>
+          <div><dt>Accuracy</dt><dd>The share of predictions that are correct.</dd></div>
+          <div><dt>Macro-F1</dt><dd>F1 computed per class, then averaged, so rare classes count as much as common ones.</dd></div>
+          <div><dt>Cross-domain</dt><dd>Training and test texts come from different topics.</dd></div>
+          <div><dt>Pretrained model</dt><dd>A model that learned general language from large text collections before seeing this task.</dd></div>
+          <div><dt>PAN</dt><dd>A shared-task series on authorship and stylometry, held at CLEF.</dd></div>
+        </dl>
+      </section>
+
+      <!-- 8 -->
+      <section class="sec" id="refs" aria-labelledby="h-refs">
+        <div class="sec-head"><span class="sec-num">§8</span><h2 id="h-refs">Sources</h2></div>
+        <ol class="refs">
+          <li>A. Bonis and G. Dimopoulos. <i>Text Categorization Based on Fine-tuning of Pre-trained Language Models.</i> Undergraduate thesis, University of the Aegean, 2019. <a href="https://hellanicus.lib.aegean.gr/items/f79c6c6c-fcf2-4985-b396-8a1117c06b4b">Library record</a>.</li>
+          <li>M. Kestemont et al. Overview of the Author Identification Task at PAN-2018: Cross-domain Authorship Attribution and Style Change Detection. CLEF 2018.</li>
+          <li>S. Meyer zu Eissen and B. Stein. Genre Classification of Web Pages. KI 2004.</li>
+          <li>M. Santini. The 7-genre web page corpus.</li>
+          <li>Code, configs and full results: <a href="https://github.com/athanbonis/genre-and-authorship-bench">github.com/athanbonis/genre-and-authorship-bench</a>.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <!-- ---------- Play mode ---------- -->
+  <div class="exam" id="exam" role="dialog" aria-modal="true" aria-labelledby="exam-title" hidden>
+    <div class="exam-inner">
+      <div class="exam-top">
+        <span class="brand" id="exam-title">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L14 4 L20 10 L10 20 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 20 L8 16" stroke="currentColor" stroke-width="2"/><circle cx="14.5" cy="9.5" r="1.6" fill="currentColor"/></svg>
+          You vs the letter counter
+        </span>
+        <div class="score" aria-live="polite">
+          <div class="you"><small>You</small><b id="score-you">0</b></div>
+          <div><small>Model</small><b id="score-model">0</b></div>
+        </div>
+        <button class="icon-btn" type="button" id="exam-close" aria-label="Close the game and return to the report">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="progress" id="progress" aria-hidden="true"></div>
       </div>
-      <p class="small muted">
-        Check: our copy of the official PAN-18 baseline gives exactly the published scores,
-        which confirms the data and the scoring are right.
-      </p>
-    </section>
-
-    <section id="story" class="section">
-      <h2>The story behind it</h2>
-      <ol class="timeline">
-        <li>
-          <span class="when">2019</span>
-          <div>
-            <h3>The original study</h3>
-            <p>
-              An undergraduate thesis at the University of the Aegean tried an early
-              pre-trained model (ULMFiT) on both puzzles. It reported big wins on web genres
-              and losses on authorship.
-            </p>
-          </div>
-        </li>
-        <li>
-          <span class="when">2026</span>
-          <div>
-            <h3>A careful second look</h3>
-            <p>
-              Reviewing it found possible exam-peeking, inconsistent numbers and missing code.
-              So everything is being rebuilt from scratch, with a strict, repeatable test.
-            </p>
-          </div>
-        </li>
-        <li>
-          <span class="when">Next</span>
-          <div>
-            <h3>Modern models</h3>
-            <p>
-              Pre-trained models and chatbots, tested the same way. The goal is a public
-              benchmark and a paper that answers: has AI caught up with letter counting?
-            </p>
-          </div>
-        </li>
-      </ol>
-    </section>
-
-    <section id="glossary" class="section">
-      <h2>Mini glossary</h2>
-      <dl class="glossary">
-        <div><dt>Character n-gram</dt><dd>A tiny slice of text, n characters long. "the" and "he " are 3-grams.</dd></div>
-        <div><dt>Training / testing</dt><dd>Studying from examples, then being examined on new ones.</dd></div>
-        <div><dt>Data leakage</dt><dd>When test material sneaks into training, inflating the score.</dd></div>
-        <div><dt>Cross-validation</dt><dd>Taking turns so every example is tested once, then averaging.</dd></div>
-        <div><dt>Accuracy</dt><dd>The share of answers that are right.</dd></div>
-        <div><dt>Macro-F1</dt><dd>A score that weighs every class (or suspect) equally, so ignoring a rare one is punished.</dd></div>
-        <div><dt>Pre-trained model</dt><dd>A model that learned general language from huge amounts of text before seeing your task.</dd></div>
-        <div><dt>PAN</dt><dd>A long-running research competition on authorship and writing style.</dd></div>
-      </dl>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <p>
-      Based on and rebuilding: A. Bonis and G. Dimopoulos, <em>Text Categorization Based on
-      Fine-tuning of Pre-trained Language Models</em>, University of the Aegean, 2019
-      (<a href="https://hellanicus.lib.aegean.gr/items/f79c6c6c-fcf2-4985-b396-8a1117c06b4b">thesis</a>).
-    </p>
-    <p>
-      Code, data loaders and full results:
-      <a href="https://github.com/athanbonis/genre-and-authorship-bench">github.com/athanbonis/genre-and-authorship-bench</a>.
-    </p>
-    <p class="small muted">Datasets: 7-genre (M. Santini), KI-04 (S. Meyer zu Eissen and B. Stein), PAN-18 authorship attribution (PAN at CLEF 2018).</p>
-  </footer>
+      <div class="stage" id="stage"></div>
+    </div>
+  </div>
 
   <script src="app.js" defer></script>
 </body>
